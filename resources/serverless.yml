@@ -1,0 +1,33 @@
+service: first-sls-service-resource
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: ap-northeast-1
+  stackTags: ${file(../serverless-stack-tags.yml)}
+
+resources:
+  Resources:
+    VPCRedisSecurityGroups:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: "Allow anyone to access Redis"
+        GroupName: reids-allow-all
+        VpcId: vpc-6b56420c
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 6379
+            ToPort: 6379
+            CidrIp: 0.0.0.0/0
+
+    DevRedisCache:
+      Type : AWS::ElastiCache::CacheCluster
+      Properties:
+        CacheNodeType: cache.t2.micro
+        ClusterName: common-dev
+        Engine: redis
+        NumCacheNodes: 1
+        VpcSecurityGroupIds:
+          - !Ref VPCRedisSecurityGroups
