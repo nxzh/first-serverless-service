@@ -4,9 +4,11 @@ frameworkVersion: ">=1.1.0 <2.0.0"
 
 provider:
   name: aws
+  stage: ${opt.stage, 'dev'}
   runtime: nodejs10.x
   region: ap-northeast-1
   stackTags: ${file(../serverless-stack-tags.yml)}
+
 
 resources:
   Resources:
@@ -31,3 +33,11 @@ resources:
         NumCacheNodes: 1
         VpcSecurityGroupIds:
           - !Ref VPCRedisSecurityGroups
+
+  Outputs:
+    ElasticCacheRedisHost:
+      Description: The elastic cache redis host
+      Value: !GetAtt DevRedisCache.RedisEndpoint.Address
+    ElasticCacheRedisPort:
+      Description: the elastic cache redis port
+      Value: !GetAtt DevRedisCache.RedisEndpoint.Port
